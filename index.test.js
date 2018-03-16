@@ -99,13 +99,11 @@ FROM user
 {{filter}}
 {{limit}};
     `
+    // attack
     const queryParams = {
-      // attack
       fields: "; drop table atable;",
-      // attack
       location: "; drop table btable;",
-      // attack
-      limit: "; drop table ctable;"
+      "; drop table ctable;": "; drop table ctable;"
     }
     const fillers = {
       fields: genFields,
@@ -118,9 +116,9 @@ FROM user
 SELECT $1
 FROM user
 
-LIMIT $2;
+;
     `
-    const expectedValues = [queryParams.fields, queryParams.limit]
+    const expectedValues = [queryParams.fields]
 
     const got = renderQuery(queryTemplate, fillers, queryParams)
     expect(got).toEqual([expectedQuery, expectedValues])
