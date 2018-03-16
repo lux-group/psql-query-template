@@ -1,4 +1,3 @@
-const {parameterizeTemplate, renderQuery} = require("./index")
 const {render} = require("./index")
 
 describe("render", () => {
