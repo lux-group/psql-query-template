@@ -60,10 +60,10 @@ function genLimit(qp) {
 describe("renderQuery", () => {
   it("works", () => {
     const queryTemplate = `
-    SELECT {{fields}}
-    FROM user
-    {{filter}}
-    {{limit}};
+SELECT {{fields}}
+FROM user
+{{filter}}
+{{limit}};
     `
     const queryParams = {
       fields: "id,name,location",
@@ -77,10 +77,10 @@ describe("renderQuery", () => {
     }
 
     const expectedQuery = `
-    SELECT $1
-    FROM user
-    WHERE location=$2
-    LIMIT $3;
+SELECT $1
+FROM user
+WHERE location=$2
+LIMIT $3;
     `
     const expectedValues = ["id,name,location", "sydney", 10]
 
