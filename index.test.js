@@ -1,126 +1,52 @@
 const {parameterizeTemplate, renderQuery} = require("./index")
+const {render} = require("./index")
 
-describe("parameterizeTemplate", () => {
+describe("render", () => {
   it("works", () => {
-    const queryTemplate = "SELECT * FROM user WHERE name={name} LIMIT {limit};"
-    const queryParams = {
-      name: "lal",
-      limit: 5
+    const queryTemplate = `
+    {select} FROM user {filter} {limit} {offset};
+    `
+    const fillers = {
+      select($, values) {
+        let fields = "*"
+        if(values.fields) {
+          fields = values.fields.split(",").map(field => $(field)).join(",")
+        }
+        return `SELECT ${fields}`
+      },
+      filter($, values) {
+        const {name, location} = values
+        let conds = []
+
+        if(name) conds.push(`name=${$(name)}`)
+        if(location) conds.push(`location=${$(location)}`)
+        if(conds.length > 0) {
+          return "WHERE " + conds.join(" AND ")
+        }
+      },
+      limit($, values) {
+        const {limit} = values
+        if(limit) {
+          return `LIMIT ${$(limit)}`
+        }
+      },
+      offset($, values) {
+
+      }
     }
-    const expected = [
-      "SELECT * FROM user WHERE name=$1 LIMIT $2;",
-      [queryParams.name, queryParams.limit]
-    ]
-
-    const got = parameterizeTemplate(queryTemplate, queryParams)
-    expect(got).toEqual(expected)
-  })
-
-  it("removes unfilled holes", () => {
-    const queryTemplate = `
-    SELECT * FROM user
-    WHERE name={name--}}
-    LIMIT {limit};
-    `
-    const queryParams = {}
-    const expectedQuery = `
-    SELECT * FROM user
-    WHERE name=
-    LIMIT ;
-    `
-    const expected = [
-      expectedQuery,
-      []
-    ]
-
-    const got = parameterizeTemplate(queryTemplate, queryParams)
-    expect(got).toEqual(expected)
-  })
-})
-
-function genFields(qp) {
-  if(qp.fields) {
-    return "{fields}"
-  }
-  return "*"
-}
-
-function genFilter(qp) {
-  if(qp.location) {
-    return "WHERE location={location}"
-  }
-}
-
-function genLimit(qp) {
-  if(qp.limit) {
-    return "LIMIT {limit}"
-  }
-}
-
-describe("renderQuery", () => {
-  it("works", () => {
-    const queryTemplate = `
-SELECT {{fields}}
-FROM user
-{{filter}}
-{{limit}};
-    `
-    const queryParams = {
+    const values = {
       fields: "id,name,location",
-      location: "sydney",
+      name: "aname",
+      location: "alocation",
       limit: 10
     }
-    const fillers = {
-      fields: genFields,
-      filter: genFilter,
-      limit: genLimit
-    }
 
     const expectedQuery = `
-SELECT $1
-FROM user
-WHERE location=$2
-LIMIT $3;
+    SELECT $1,$2,$3 FROM user WHERE name=$4 AND location=$5 LIMIT $6 ;
     `
-    const expectedValues = ["id,name,location", "sydney", 10]
+    const expectedValues = ["id", "name", "location", "aname", "alocation", 10]
 
-    const got = renderQuery(queryTemplate, fillers, queryParams)
-    expect(got).toEqual([expectedQuery, expectedValues])
-  })
-
-  it("is not vulnerable to sql injection", () => {
-    function genFilter(qp) {
-      return `{${qp.location}}`
-    }
-
-    const queryTemplate = `
-SELECT {{fields}}
-FROM user
-{{filter}}
-{{limit}};
-    `
-    // attack
-    const queryParams = {
-      fields: "; drop table atable;",
-      location: "; drop table btable;",
-      "; drop table ctable;": "; drop table ctable;"
-    }
-    const fillers = {
-      fields: genFields,
-      // dev mistake
-      filter: genFilter,
-      limit: genLimit
-    }
-
-    const expectedQuery = `
-SELECT $1
-FROM user
-
-;
-    `
-    const expectedValues = [queryParams.fields]
-
-    const got = renderQuery(queryTemplate, fillers, queryParams)
+    const got = render(queryTemplate, fillers, values)
     expect(got).toEqual([expectedQuery, expectedValues])
   })
 })
