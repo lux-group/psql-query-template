@@ -1,7 +1,19 @@
 ## psql-query-template
+It empowers one to write complex and safe Postgres queries.
 
-## Usage
+## Problems it solves
+- static sql queries do not scale
+- its hard to express complex db queries using ORM and query builders
+
+## Walkthrough
 ```javascript
+const {render} = require("psql-query-template")
+
+// prepare a db client
+const { Client } = require('pg')
+const client = new Client()
+await client.connect()
+
 const queryTemplate = `
 {select} FROM user {filter} {limit} {offset};
 `
@@ -50,6 +62,8 @@ console.log(query[0])
 console.log(query[1])
 >> ["id", "name", "location", "aname", "alocation", 10]
 
-db.query(...query)
+
+// query the db
+const res = await client.query(...query)
 
 ```
