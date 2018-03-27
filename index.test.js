@@ -73,4 +73,23 @@ describe("render", () => {
     const got = render(queryTemplate, fillers, values)
     expect(got).toEqual([expectedQuery, expectedValues])
   })
+
+  it("skips fillers which are not in the template", () => {
+    const queryTemplate = `{select} FROM user;`
+    const fillers = {
+      select($, query) {
+        return `SELECT ${$("*")}`
+      },
+      // render should not run this filler
+      filter($, query) {
+        return $("test")
+      }
+    }
+    const expectedQuery = `SELECT $1 FROM user;`
+    const expectedValues = ["*"]
+
+
+    const got = render(queryTemplate, fillers)
+    expect(got).toEqual([expectedQuery, expectedValues])
+  })
 })
