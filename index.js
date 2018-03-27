@@ -7,7 +7,9 @@ function render(template, fillers, values) {
   }
 
   const fills = Object.keys(fillers).reduce((acc, key) => {
-    acc[key] = fillers[key]($, values) || ""
+    if(template.indexOf(`{${key}}`) !== -1) {
+      acc[key] = fillers[key]($, values) || ""
+    }
     return acc
   }, {})
 
