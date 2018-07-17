@@ -1,10 +1,20 @@
-function render(template, fillers, values) {
+function newPlaceholderGenerator() {
   let queryValues = []
 
-  function $(value) {
-    queryValues.push(value)
-    return `$${queryValues.length}`
+  return {
+    genPlaceholder(value) {
+      queryValues.push(value)
+      return `$${queryValues.length}`
+    },
+    getValues() {
+      return queryValues
+    }
   }
+}
+
+function render(template, fillers, values) {
+  const placeholderGenerator = newPlaceholderGenerator()
+  const $ = placeholderGenerator.genPlaceholder
 
   const fills = Object.keys(fillers).reduce((acc, key) => {
     if(template.indexOf(`{${key}}`) !== -1) {
@@ -17,9 +27,10 @@ function render(template, fillers, values) {
     return acc.replace(new RegExp(`{${key}}`, "g"), fills[key])
   }, template)
 
-  return [renderedQuery, queryValues]
+  return [renderedQuery, placeholderGenerator.getValues()]
 }
 
 module.exports = {
-  render
+  render,
+  newPlaceholderGenerator
 }
