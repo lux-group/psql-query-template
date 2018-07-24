@@ -1,4 +1,4 @@
-const {render, newPlaceholderGenerator} = require("./index")
+const {render, placeholderGenerator} = require("./index")
 
 
 const fillers = {
@@ -94,20 +94,20 @@ describe("render", () => {
   })
 })
 
-describe("newPlaceholderGenerator.genPlaceholder", () => {
+describe("placeholderGenerator.gen", () => {
   it("should return placeholder", () => {
-    const placeholderGenerator = newPlaceholderGenerator()
-    expect(placeholderGenerator.genPlaceholder('a')).toEqual('$1')
-    expect(placeholderGenerator.genPlaceholder('b')).toEqual('$2')
+    const $ = placeholderGenerator()
+    expect($.gen('a')).toEqual('$1')
+    expect($.gen('b')).toEqual('$2')
   })
 })
 
-describe("newPlaceholderGenerator.getValues", () => {
+describe("placeholderGenerator.getValues", () => {
   it("should return values", () => {
-    const placeholderGenerator = newPlaceholderGenerator()
-    placeholderGenerator.genPlaceholder('a')
-    placeholderGenerator.genPlaceholder('b')
+    const $ = placeholderGenerator()
+    $.gen('a')
+    $.gen('b')
 
-    expect(placeholderGenerator.getValues()).toEqual(['a', 'b'])
+    expect($.getValues()).toEqual(['a', 'b'])
   })
 })
