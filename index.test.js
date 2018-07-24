@@ -1,4 +1,4 @@
-const {render} = require("./index")
+const {render, placeholderGenerator} = require("./index")
 
 
 const fillers = {
@@ -91,5 +91,23 @@ describe("render", () => {
 
     const got = render(queryTemplate, fillers)
     expect(got).toEqual([expectedQuery, expectedValues])
+  })
+})
+
+describe("placeholderGenerator.gen", () => {
+  it("should return placeholder", () => {
+    const $ = placeholderGenerator()
+    expect($.gen('a')).toEqual('$1')
+    expect($.gen('b')).toEqual('$2')
+  })
+})
+
+describe("placeholderGenerator.getValues", () => {
+  it("should return values", () => {
+    const $ = placeholderGenerator()
+    $.gen('a')
+    $.gen('b')
+
+    expect($.getValues()).toEqual(['a', 'b'])
   })
 })
