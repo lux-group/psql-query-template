@@ -30,6 +30,12 @@ function render(template, fillers, values) {
   return [renderedQuery, generator.getValues()]
 }
 
+function where(tpl) {
+  return ($, params) => {
+
+  }
+}
+
 module.exports = {
   render,
   placeholderGenerator
