@@ -12,24 +12,6 @@ function placeholderGenerator() {
   }
 }
 
-function render(template, fillers, values) {
-  const generator = placeholderGenerator()
-  const $ = generator.gen
-
-  const fills = Object.keys(fillers).reduce((acc, key) => {
-    if(template.indexOf(`{${key}}`) !== -1) {
-      acc[key] = fillers[key]($, values) || ""
-    }
-    return acc
-  }, {})
-
-  const renderedQuery = Object.keys(fills).reduce((acc, key) => {
-    return acc.replace(new RegExp(`{${key}}`, "g"), fills[key])
-  }, template)
-
-  return [renderedQuery, generator.getValues()]
-}
-
 // for tagged template see
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
 function sql(params) {
@@ -74,9 +56,29 @@ function where(tpl) {
   }
 }
 
+function limit(key) {
+  return ($, params) => {
+    const val = params[key || 'limit']
+    if(val) {
+      return `LIMIT ${$(val)}`
+    }
+  }
+}
+
+
+function offset(key) {
+  return ($, params) => {
+    const val = params[key || 'offset']
+    if(val) {
+      return `OFFSET ${$(val)}`
+    }
+  }
+}
+
 module.exports = {
-  render,
   placeholderGenerator,
   sql,
-  where
+  where,
+  limit,
+  offset
 }
