@@ -32,11 +32,27 @@ function render(template, fillers, values) {
 
 function where(tpl) {
   return ($, params) => {
+    // remove redundant space
+    tpl = tpl.replace(/\s\s+/g, ' ')
+    tpl = tpl.trim()
 
+    Object.keys(params).map(key => {
+      // replace 'id = {id}' with 'id = $1'
+      tpl = tpl.replace(new RegExp(`{${key}}`, 'g'), $(params[key]))
+    })
+
+    // // replace '^id = {id} AND ...'
+    tpl = tpl.replace(/^\w+\s[a-zA-Z0-9_=<>]+\s{\w+}\s\w+\s/, '')
+    // replace '...AND id = {id}'
+    tpl = tpl.replace(/\s\w+\s\w+\s[a-zA-Z0-9_=<>]+\s{\w+}/, '')
+    // // replace '^id = {id}$'
+    tpl = tpl.replace(/^\w+\s[a-zA-Z0-9_=<>]+\s{\w+}$/, '')
+    return tpl
   }
 }
 
 module.exports = {
   render,
-  placeholderGenerator
+  placeholderGenerator,
+  where
 }

@@ -114,19 +114,27 @@ describe("placeholderGenerator.getValues", () => {
 
 describe("where", () => {
   it("should fill gaps", () => {
-    const tpl = 'name = {name} AND id = {id}'
+    const tpl = '  name =  {name} AND  id =  {id}  '
     const $ = placeholderGenerator()
     const params = {
       name: 'aname',
       id: 'aid'
     }
-    const got = where(tpl)($, params)
+    const got = where(tpl)($.gen, params)
 
     const expected = 'name = $1 AND id = $2'
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual(['aname', 'aid'])
   })
 
-  it("should remove unfilled gaps and associates")
-  it("should remove empty ()")
+  it("should remove unfilled gaps and associates", () => {
+    const tpl = 'name = {name} AND id = {id} OR address = {address}'
+    const $ = placeholderGenerator()
+    const params = {}
+    const got = where(tpl)($.gen, params)
+
+    const expected = ''
+    expect(got).toEqual(expected)
+    expect($.getValues()).toEqual([])
+  })
 })
