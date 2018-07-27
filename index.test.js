@@ -1,4 +1,4 @@
-const {render, placeholderGenerator, where} = require("./index")
+const {render, placeholderGenerator, where, sql} = require("./index")
 
 
 const fillers = {
@@ -122,7 +122,7 @@ describe("where", () => {
     }
     const got = where(tpl)($.gen, params)
 
-    const expected = 'name = $1 AND id = $2'
+    const expected = 'WHERE name = $1 AND id = $2'
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual(['aname', 'aid'])
   })
@@ -147,5 +147,18 @@ describe("where", () => {
     const expected = ''
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([])
+  })
+})
+
+describe("sql", () => {
+  it("works", () => {
+    const params = {
+      id: 1,
+      name: 'apple'
+    }
+    const result = sql(params)`select * from users ${where('id = {id} and name like {name} and location = {location}')};`
+
+    const expected = ["select * from users WHERE id = $1 and name like $2;", [1, "apple"]]
+    expect(result).toEqual(expected)
   })
 })

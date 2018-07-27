@@ -30,6 +30,22 @@ function render(template, fillers, values) {
   return [renderedQuery, generator.getValues()]
 }
 
+// for tagged template see
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+function sql(params) {
+  const $ = placeholderGenerator()
+  return function (strings) {
+    let fillers = Array.from(arguments)
+    fillers.shift()
+    let result = [strings[0]]
+    fillers.forEach((filler, index) => {
+      result.push(filler($.gen, params), strings[index + 1])
+    })
+
+    return [result.join(''), $.getValues()]
+  }
+}
+
 function where(tpl) {
   return ($, params) => {
     // remove redundant space
@@ -49,6 +65,11 @@ function where(tpl) {
     tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}$/, '')
     // // replace '(id = {id})'
     tpl = tpl.replace(/\(\s?[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}\s?\)/g, '')
+
+    if (tpl) {
+      return `WHERE ${tpl}`
+    }
+
     return tpl
   }
 }
@@ -56,5 +77,6 @@ function where(tpl) {
 module.exports = {
   render,
   placeholderGenerator,
+  sql,
   where
 }
