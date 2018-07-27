@@ -66,11 +66,13 @@ describe("sql", () => {
   it("works", () => {
     const params = {
       id: 1,
-      name: 'apple'
+      name: 'apple',
+      limit: 10,
+      offset: 20
     }
-    const result = sql(params)`select * from users ${where('id = {id} and name like {name} and location = {location}')};`
+    const result = sql(params)`SELECT * FROM users ${where('id = {id} AND name like {name} and location = {location}')} ${limit()} ${offset()};`
 
-    const expected = ["select * from users WHERE id = $1 and name like $2;", [1, "apple"]]
+    const expected = ["SELECT * FROM users WHERE id = $1 AND name like $2 LIMIT $3 OFFSET $4;", [1, "apple", 10, 20]]
     expect(result).toEqual(expected)
   })
 })

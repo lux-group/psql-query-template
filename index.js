@@ -34,9 +34,11 @@ function where(tpl) {
     tpl = tpl.replace(/\s\s+/g, ' ')
     tpl = tpl.trim()
 
-    Object.keys(params).map(key => {
-      // replace 'id = {id}' with 'id = $1'
-      tpl = tpl.replace(new RegExp(`{${key}}`, 'g'), $(params[key]))
+    Object.keys(params).forEach(key => {
+      if(new RegExp(`{${key}}`).test(tpl)) {
+        // replace 'id = {id}' with 'id = $1'
+        tpl = tpl.replace(new RegExp(`{${key}}`, 'g'), $(params[key]))
+      }
     })
 
     // // replace '^id = {id} AND ...'
