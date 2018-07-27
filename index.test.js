@@ -137,4 +137,15 @@ describe("where", () => {
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([])
   })
+
+  it("should remove unfilled gaps and associates", () => {
+    const tpl = 'name = {name} AND (id = {id} OR address = {address})'
+    const $ = placeholderGenerator()
+    const params = {}
+    const got = where(tpl)($.gen, params)
+
+    const expected = ''
+    expect(got).toEqual(expected)
+    expect($.getValues()).toEqual([])
+  })
 })
