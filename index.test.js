@@ -128,7 +128,7 @@ describe("where", () => {
   })
 
   it("should remove unfilled gaps and associates", () => {
-    const tpl = 'name = {name} AND id = {id} OR address = {address}'
+    const tpl = 'name = {name} AND public.id = {id} OR address = {address}'
     const $ = placeholderGenerator()
     const params = {}
     const got = where(tpl)($.gen, params)

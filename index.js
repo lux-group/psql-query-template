@@ -42,13 +42,13 @@ function where(tpl) {
     })
 
     // // replace '^id = {id} AND ...'
-    tpl = tpl.replace(/^\w+\s[a-zA-Z0-9_=<>]+\s{\w+}\s\w+\s/g, '')
+    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}\s\w+\s/g, '')
     // replace '...AND id = {id}'
-    tpl = tpl.replace(/\s\w+\s\w+\s[a-zA-Z0-9_=<>]+\s{\w+}/g, '')
+    tpl = tpl.replace(/\s\w+\s[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}/g, '')
     // // replace '^id = {id}$'
-    tpl = tpl.replace(/^\w+\s[a-zA-Z0-9_=<>]+\s{\w+}$/, '')
+    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}$/, '')
     // // replace '(id = {id})'
-    tpl = tpl.replace(/\(\w+\s[a-zA-Z0-9_=<>]+\s{\w+}\)$/g, '')
+    tpl = tpl.replace(/\(\s?[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}\s?\)/g, '')
     return tpl
   }
 }
