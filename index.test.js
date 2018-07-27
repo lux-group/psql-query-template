@@ -88,18 +88,29 @@ describe("limit", () => {
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.limit])
   })
+
+  it("takes key", () => {
+    const $ = placeholderGenerator()
+    const params = {
+      a: 50
+    }
+    const expected = 'LIMIT $1'
+    const got = limit('a')($.gen, params)
+    expect(got).toEqual(expected)
+    expect($.getValues()).toEqual([params.a])
+  })
 })
 
 describe("offset", () => {
   it("works", () => {
     const $ = placeholderGenerator()
     const params = {
-      a: 50
+      offset: 50
     }
     const expected = 'OFFSET $1'
-    const got = offset('a')($.gen, params)
+    const got = offset()($.gen, params)
     expect(got).toEqual(expected)
-    expect($.getValues()).toEqual([params.a])
+    expect($.getValues()).toEqual([params.offset])
   })
 
   it("takes key", () => {
