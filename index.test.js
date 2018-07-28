@@ -26,7 +26,9 @@ describe("placeholderGenerator.getValues", () => {
 
 describe("where", () => {
   it("should fill gaps", () => {
-    const tpl = '  name =  {name} AND  id =  {id}  '
+    const tpl = `  name =
+    {name}
+    AND  id =  {id}  `
     const $ = placeholderGenerator()
     const params = {
       name: 'aname',
@@ -50,7 +52,7 @@ describe("where", () => {
     expect($.getValues()).toEqual([])
   })
 
-  it("should remove unfilled gaps and associates", () => {
+  it("should remove unfilled gaps and parentheses", () => {
     const tpl = 'name = {name} AND (id = {id} OR address = {address})'
     const $ = placeholderGenerator()
     const params = {}

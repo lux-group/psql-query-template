@@ -30,7 +30,7 @@ function sql(params) {
 
 function where(tpl) {
   return ($, params) => {
-    // remove redundant space
+    // remove redundant white space
     tpl = tpl.replace(/\s\s+/g, ' ')
     tpl = tpl.trim()
 
