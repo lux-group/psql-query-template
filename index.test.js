@@ -27,7 +27,7 @@ describe("placeholderGenerator.getValues", () => {
 })
 
 describe("where", () => {
-  it.only("works", () => {
+  it("works", () => {
     const $ = placeholderGenerator()
     const params = {
       name: 'aname',
@@ -63,17 +63,20 @@ describe("sql", () => {
     }
     const result = sql`
     SELECT * FROM users
-    ${where`
-      id = ${params.id} AND
-      name like ${params.name} AND
-      location = ${params.location}`}
-    ${limit`${params.limit}`}
-    ${offset`${params.offset}`};
+    ${where(
+      and(
+        ['id =', params.id],
+        ['name like', params.name],
+        ['location =', params.location]
+      )
+    )}
+    ${limit(params.limit)}
+    ${offset(params.offset)};
     `
 
     const expectedSql = `
     SELECT * FROM users
-    WHERE id = $1 AND name like $2
+    WHERE ( id = $1 AND name like $2 )
     LIMIT $3
     OFFSET $4;
     `
@@ -89,7 +92,7 @@ describe("limit", () => {
       limit: 10
     }
     const expected = 'LIMIT $1'
-    const got = limit`${params.limit}`($.gen)
+    const got = limit(params.limit)($.gen)
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.limit])
   })
@@ -98,16 +101,16 @@ describe("limit", () => {
     const $ = placeholderGenerator()
     const expected = ''
 
-    const got1 = limit`${undefined}`($.gen)
+    const got1 = limit(undefined)($.gen)
     expect(got1).toEqual('')
 
-    const got2 = limit`${null}`($.gen)
+    const got2 = limit(null)($.gen)
     expect(got2).toEqual('')
 
-    const got3 = limit`${0}`($.gen)
+    const got3 = limit(0)($.gen)
     expect(got3).toEqual('')
 
-    const got4 = limit`${false}`($.gen)
+    const got4 = limit(false)($.gen)
     expect(got4).toEqual('')
   })
 })
@@ -119,7 +122,7 @@ describe("offset", () => {
       offset: 50
     }
     const expected = 'OFFSET $1'
-    const got = offset`${params.offset}`($.gen)
+    const got = offset(params.offset)($.gen)
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.offset])
   })
@@ -128,16 +131,16 @@ describe("offset", () => {
     const $ = placeholderGenerator()
     const expected = ''
 
-    const got1 = offset`${undefined}`($.gen)
+    const got1 = offset(undefined)($.gen)
     expect(got1).toEqual('')
 
-    const got2 = offset`${null}`($.gen)
+    const got2 = offset(null)($.gen)
     expect(got2).toEqual('')
 
-    const got3 = offset`${0}`($.gen)
+    const got3 = offset(0)($.gen)
     expect(got3).toEqual('')
 
-    const got4 = offset`${false}`($.gen)
+    const got4 = offset(false)($.gen)
     expect(got4).toEqual('')
   })
 })

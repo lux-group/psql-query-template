@@ -91,11 +91,9 @@ function where(orAnd) {
 }
 
 function limit(value) {
-  const args = Array.from(arguments)
-
   return function ($) {
-    if(args.length === 2 && args[1]) {
-      return `LIMIT ${$(args[1])}`
+    if(value) {
+      return `LIMIT ${$(value)}`
     }
     return ''
   }
@@ -103,11 +101,9 @@ function limit(value) {
 
 
 function offset(value) {
-  const args = Array.from(arguments)
-
   return function ($) {
-    if(args.length === 2 && args[1]) {
-      return `OFFSET ${$(args[1])}`
+    if(value) {
+      return `OFFSET ${$(value)}`
     }
     return ''
   }
