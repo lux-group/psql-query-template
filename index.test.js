@@ -3,7 +3,9 @@ const {
   where,
   sql,
   limit,
-  offset
+  offset,
+  and,
+  or
 } = require("./index")
 
 describe("placeholderGenerator.gen", () => {
@@ -25,32 +27,29 @@ describe("placeholderGenerator.getValues", () => {
 })
 
 describe("where", () => {
-  it("should fill gaps", () => {
+  it.only("works", () => {
     const $ = placeholderGenerator()
     const params = {
       name: 'aname',
-      id: 'aid'
+      id: 'aid',
+      date: undefined
     }
-    const got = where`  name =
-    ${params.name}
-    AND  id =  ${params.id}
-    AND address = 'somewhere'
-    `($.gen)
-    const expected = "WHERE name = $1 AND id = $2 AND address = 'somewhere'"
+    const got = where(
+      and(
+        ['name =', params.name],
+        or(
+          ['id =', params.id],
+          "address = 'somewhere'"
+        ),
+        ['date =', params.date],
+        () => {
+          return "category like 'hoooman'"
+        }
+      )
+    )($.gen)
+    const expected = "WHERE ( name = $1 AND ( id = $2 OR address = 'somewhere' ) AND category like 'hoooman' )"
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual(['aname', 'aid'])
-  })
-
-  it("should remove unfilled gaps and associates", () => {
-    const $ = placeholderGenerator()
-    const params = {}
-    const got = where`
-    name = ${undefined} AND public.id = ${undefined} OR address = ${undefined} (id = ${undefined} OR address = ${undefined}) AND mobile = ${undefined}
-    `($.gen)
-
-    const expected = ''
-    expect(got).toEqual(expected)
-    expect($.getValues()).toEqual([])
   })
 })
 

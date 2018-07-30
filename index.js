@@ -32,47 +32,61 @@ function cleanWhiteSpace(tpl) {
   return tpl.trim()
 }
 
-function where(strings) {
-  let fillers = Array.from(arguments)
-
-  return function ($) {
-    fillers.shift()
-    let result = [strings[0]]
-    fillers.forEach((filler, index) => {
-      let toPush
-      if(filler === undefined) {
-        // we will remove this later
-        toPush = '{}'
-      }
-      else {
-        toPush = $(filler)
-      }
-      result.push(toPush, strings[index + 1])
-    })
-
-    // join the pieces
-    let tpl = result.join('')
-
-    // remove unfilled conditions
-    // // replace '^id = {} AND ...'
-    tpl = cleanWhiteSpace(tpl)
-    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}\s\w+\s/g, '')
-    tpl = cleanWhiteSpace(tpl)
-    // replace '...AND id = {id}'
-    tpl = tpl.replace(/\s\w+\s[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}/g, '')
-    tpl = cleanWhiteSpace(tpl)
-    // // replace '(id = {id})'
-    tpl = tpl.replace(/\(\s?[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}\s?\)/g, '')
-    // // replace '^id = {id}$'
-    tpl = cleanWhiteSpace(tpl)
-    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}$/, '')
-
-    tpl = cleanWhiteSpace(tpl)
-    if (tpl) {
-      return `WHERE ${tpl}`
+function q($, unit) {
+  if(typeof unit === 'string') {
+    return unit
+  }
+  else if(Array.isArray(unit)) {
+    const value = unit[1]
+    if(value) {
+      return [unit[0], $(value)].join(' ')
     }
+    return undefined
+  }
+  else if (typeof unit === 'function') {
+    return unit($)
+  }
+}
 
-    return tpl
+function and() {
+  const args = Array.from(arguments)
+  return ($) => {
+    const query = args
+      .map(item => {
+        return q($, item)
+      })
+      .filter(item => !!item)
+      .join(' AND ')
+
+    if(query) {
+      return `( ${query} )`
+    }
+  }
+}
+
+function or() {
+  const args = Array.from(arguments)
+  return ($) => {
+    const query = args
+      .map(item => {
+        return q($, item)
+      })
+      .filter(item => !!item)
+      .join(' OR ')
+
+    if(query) {
+      return `( ${query} )`
+    }
+  }
+}
+
+function where(orAnd) {
+  return ($) => {
+    const partialQuery = orAnd($)
+    if (partialQuery) {
+      return 'WHERE ' + partialQuery
+    }
+    return ''
   }
 }
 
@@ -104,5 +118,7 @@ module.exports = {
   sql,
   where,
   limit,
-  offset
+  offset,
+  and,
+  or
 }
