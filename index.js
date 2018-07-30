@@ -80,9 +80,10 @@ function limit(value) {
   const args = Array.from(arguments)
 
   return function ($) {
-    if(args.length === 2) {
+    if(args.length === 2 && args[1]) {
       return `LIMIT ${$(args[1])}`
     }
+    return ''
   }
 }
 
@@ -91,9 +92,10 @@ function offset(value) {
   const args = Array.from(arguments)
 
   return function ($) {
-    if(args.length === 2) {
+    if(args.length === 2 && args[1]) {
       return `OFFSET ${$(args[1])}`
     }
+    return ''
   }
 }
 

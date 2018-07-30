@@ -34,9 +34,9 @@ describe("where", () => {
     const got = where`  name =
     ${params.name}
     AND  id =  ${params.id}
-
+    AND address = 'somewhere'
     `($.gen)
-    const expected = 'WHERE name = $1 AND id = $2'
+    const expected = "WHERE name = $1 AND id = $2 AND address = 'somewhere'"
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual(['aname', 'aid'])
   })
@@ -94,6 +94,23 @@ describe("limit", () => {
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.limit])
   })
+
+  it("returns empty string if falsy value is passed", () => {
+    const $ = placeholderGenerator()
+    const expected = ''
+
+    const got1 = limit`${undefined}`($.gen)
+    expect(got1).toEqual('')
+
+    const got2 = limit`${null}`($.gen)
+    expect(got2).toEqual('')
+
+    const got3 = limit`${0}`($.gen)
+    expect(got3).toEqual('')
+
+    const got4 = limit`${false}`($.gen)
+    expect(got4).toEqual('')
+  })
 })
 
 describe("offset", () => {
@@ -106,5 +123,22 @@ describe("offset", () => {
     const got = offset`${params.offset}`($.gen)
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.offset])
+  })
+
+  it("returns empty string if falsy value is passed", () => {
+    const $ = placeholderGenerator()
+    const expected = ''
+
+    const got1 = offset`${undefined}`($.gen)
+    expect(got1).toEqual('')
+
+    const got2 = offset`${null}`($.gen)
+    expect(got2).toEqual('')
+
+    const got3 = offset`${0}`($.gen)
+    expect(got3).toEqual('')
+
+    const got4 = offset`${false}`($.gen)
+    expect(got4).toEqual('')
   })
 })
