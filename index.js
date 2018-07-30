@@ -76,21 +76,23 @@ function where(strings) {
   }
 }
 
-function limit(key) {
-  return ($, params) => {
-    const val = params[key || 'limit']
-    if(val) {
-      return `LIMIT ${$(val)}`
+function limit(value) {
+  const args = Array.from(arguments)
+
+  return function ($) {
+    if(args.length === 2) {
+      return `LIMIT ${$(args[1])}`
     }
   }
 }
 
 
-function offset(key) {
-  return ($, params) => {
-    const val = params[key || 'offset']
-    if(val) {
-      return `OFFSET ${$(val)}`
+function offset(value) {
+  const args = Array.from(arguments)
+
+  return function ($) {
+    if(args.length === 2) {
+      return `OFFSET ${$(args[1])}`
     }
   }
 }

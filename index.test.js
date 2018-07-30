@@ -62,9 +62,23 @@ describe("sql", () => {
       limit: 10,
       offset: 20
     }
-    const result = sql(params)`SELECT * FROM users ${where('id = {id} AND name like {name} and location = {location}')} ${limit()} ${offset()};`
+    const result = sql`
+    SELECT * FROM users
+    ${where`
+      id = ${params.id} AND
+      name like ${params.name} AND
+      location = ${params.location}`}
+    ${limit`${params.limit}`}
+    ${offset`${params.offset}`};
+    `
 
-    const expected = ["SELECT * FROM users WHERE id = $1 AND name like $2 LIMIT $3 OFFSET $4;", [1, "apple", 10, 20]]
+    const expectedSql = `
+    SELECT * FROM users
+    WHERE id = $1 AND name like $2
+    LIMIT $3
+    OFFSET $4;
+    `
+    const expected = [expectedSql, [1, "apple", 10, 20]]
     expect(result).toEqual(expected)
   })
 })
@@ -76,20 +90,9 @@ describe("limit", () => {
       limit: 10
     }
     const expected = 'LIMIT $1'
-    const got =limit()($.gen, params)
+    const got = limit`${params.limit}`($.gen)
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.limit])
-  })
-
-  it("takes key", () => {
-    const $ = placeholderGenerator()
-    const params = {
-      a: 50
-    }
-    const expected = 'LIMIT $1'
-    const got = limit('a')($.gen, params)
-    expect(got).toEqual(expected)
-    expect($.getValues()).toEqual([params.a])
   })
 })
 
@@ -100,19 +103,8 @@ describe("offset", () => {
       offset: 50
     }
     const expected = 'OFFSET $1'
-    const got = offset()($.gen, params)
+    const got = offset`${params.offset}`($.gen)
     expect(got).toEqual(expected)
     expect($.getValues()).toEqual([params.offset])
-  })
-
-  it("takes key", () => {
-    const $ = placeholderGenerator()
-    const params = {
-      a: 50
-    }
-    const expected = 'OFFSET $1'
-    const got = offset('a')($.gen, params)
-    expect(got).toEqual(expected)
-    expect($.getValues()).toEqual([params.a])
   })
 })
