@@ -14,42 +14,60 @@ function placeholderGenerator() {
 
 // for tagged template see
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-function sql(params) {
+function sql(strings) {
   const $ = placeholderGenerator()
-  return function (strings) {
-    let fillers = Array.from(arguments)
+
+  let fillers = Array.from(arguments)
+  fillers.shift()
+  let result = [strings[0]]
+  fillers.forEach((filler, index) => {
+    result.push(filler($.gen), strings[index + 1])
+  })
+
+  return [result.join(''), $.getValues()]
+}
+
+function cleanWhiteSpace(tpl) {
+  tpl = tpl.replace(/\s\s+/g, ' ')
+  return tpl.trim()
+}
+
+function where(strings) {
+  let fillers = Array.from(arguments)
+
+  return function ($) {
     fillers.shift()
     let result = [strings[0]]
     fillers.forEach((filler, index) => {
-      result.push(filler($.gen, params), strings[index + 1])
-    })
-
-    return [result.join(''), $.getValues()]
-  }
-}
-
-function where(tpl) {
-  return ($, params) => {
-    // remove redundant white space
-    tpl = tpl.replace(/\s\s+/g, ' ')
-    tpl = tpl.trim()
-
-    Object.keys(params).forEach(key => {
-      if(new RegExp(`{${key}}`).test(tpl)) {
-        // replace 'id = {id}' with 'id = $1'
-        tpl = tpl.replace(new RegExp(`{${key}}`, 'g'), $(params[key]))
+      let toPush
+      if(filler === undefined) {
+        // we will remove this later
+        toPush = '{}'
       }
+      else {
+        toPush = $(filler)
+      }
+      result.push(toPush, strings[index + 1])
     })
 
-    // // replace '^id = {id} AND ...'
-    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}\s\w+\s/g, '')
-    // replace '...AND id = {id}'
-    tpl = tpl.replace(/\s\w+\s[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}/g, '')
-    // // replace '^id = {id}$'
-    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}$/, '')
-    // // replace '(id = {id})'
-    tpl = tpl.replace(/\(\s?[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{\w+}\s?\)/g, '')
+    // join the pieces
+    let tpl = result.join('')
 
+    // remove unfilled conditions
+    // // replace '^id = {} AND ...'
+    tpl = cleanWhiteSpace(tpl)
+    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}\s\w+\s/g, '')
+    tpl = cleanWhiteSpace(tpl)
+    // replace '...AND id = {id}'
+    tpl = tpl.replace(/\s\w+\s[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}/g, '')
+    tpl = cleanWhiteSpace(tpl)
+    // // replace '(id = {id})'
+    tpl = tpl.replace(/\(\s?[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}\s?\)/g, '')
+    // // replace '^id = {id}$'
+    tpl = cleanWhiteSpace(tpl)
+    tpl = tpl.replace(/^[a-zA-Z_.]+\s[a-zA-Z0-9_=<>]+\s{}$/, '')
+
+    tpl = cleanWhiteSpace(tpl)
     if (tpl) {
       return `WHERE ${tpl}`
     }
