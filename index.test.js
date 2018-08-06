@@ -31,14 +31,14 @@ describe("where", () => {
     const $ = placeholderGenerator()
     const params = {
       name: 'aname',
-      id: 'aid',
+      id: ['aid', 'bid'],
       date: undefined
     }
     const got = where(
       and(
         ['name =', params.name],
         or(
-          ['id =', params.id],
+          ['id IN', params.id],
           "address = 'somewhere'"
         ),
         ['date =', params.date],
@@ -47,9 +47,9 @@ describe("where", () => {
         }
       )
     )($.gen)
-    const expected = "WHERE ( name = $1 AND ( id = $2 OR address = 'somewhere' ) AND category like 'hoooman' )"
+    const expected = "WHERE ( name = $1 AND ( id IN ( $2, $3 ) OR address = 'somewhere' ) AND category like 'hoooman' )"
     expect(got).toEqual(expected)
-    expect($.getValues()).toEqual(['aname', 'aid'])
+    expect($.getValues()).toEqual(['aname', 'aid', 'bid'])
   })
 })
 

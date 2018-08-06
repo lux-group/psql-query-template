@@ -35,7 +35,7 @@ function q($, unit) {
     let value = unit[1]
     if(value !== undefined) {
       if(Array.isArray(value)) {
-        return [unit[0], value.map(avalue => $(avalue))].join(',')
+        return [unit[0], `( ${value.map(avalue => $(avalue)).join(', ')} )`].join(' ')
       }
       else {
         return [unit[0], $(value)].join(' ')
