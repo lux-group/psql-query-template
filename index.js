@@ -27,19 +27,19 @@ function sql(strings) {
   return [result.join(''), $.getValues()]
 }
 
-function cleanWhiteSpace(tpl) {
-  tpl = tpl.replace(/\s\s+/g, ' ')
-  return tpl.trim()
-}
-
 function q($, unit) {
   if(typeof unit === 'string') {
     return unit
   }
   else if(Array.isArray(unit)) {
-    const value = unit[1]
-    if(value) {
-      return [unit[0], $(value)].join(' ')
+    let value = unit[1]
+    if(value !== undefined) {
+      if(Array.isArray(value)) {
+        return [unit[0], value.map(avalue => $(avalue))].join(',')
+      }
+      else {
+        return [unit[0], $(value)].join(' ')
+      }
     }
     return undefined
   }
@@ -98,7 +98,6 @@ function limit(value) {
     return ''
   }
 }
-
 
 function offset(value) {
   return function ($) {
