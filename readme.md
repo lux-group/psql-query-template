@@ -61,21 +61,18 @@ ${genPlaceholder => {
 `
 
 console.log(query[0])
-```
->> "
-SELECT * FROM user
-
-WHERE ( name ilike $1 OR ( location = $2 AND active = TRUE ) )
-
-LIMIT $3
-
-OFFSET $4
-;
-"
-```
+>>
+>> SELECT * FROM user
+>>
+>> WHERE ( name ilike $1 OR ( location = $2 AND active = TRUE ) )
+>>
+>> LIMIT $3
+>>
+>> OFFSET $4
+>> ;
 
 console.log(query[1])
-`>> ["lal", "sydney", 50, 50]`
+>> ["lal", "sydney", 50, 50]
 
 
 // query the db
