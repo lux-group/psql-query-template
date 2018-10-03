@@ -5,6 +5,13 @@ It empowers one to write complex and safe Postgres queries.
 - static sql queries do not scale
 - its hard to express complex db queries using ORM and query builders
 
+## Installation
+`yarn add psql-query-template`
+
+or
+
+`npm install --save psql-query-template`
+
 ## Walkthrough
 ```javascript
 const {sql, where, and, or, limit} = require("psql-query-template")
@@ -21,6 +28,8 @@ const queryParams = {
   limit: 50
 }
 
+// psql-query-template makes use of tagged template
+// visit https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_templates
 // prepare query template
 const query = sql`
 SELECT * FROM user
@@ -52,7 +61,8 @@ ${genPlaceholder => {
 `
 
 console.log(query[0])
-  >> "
+```
+>> "
 SELECT * FROM user
 
 WHERE ( name ilike $1 OR ( location = $2 AND active = TRUE ) )
@@ -61,10 +71,11 @@ LIMIT $3
 
 OFFSET $4
 ;
-  "
+"
+```
 
 console.log(query[1])
->> ["lal", "sydney", 50, 50]
+`>> ["lal", "sydney", 50, 50]`
 
 
 // query the db
